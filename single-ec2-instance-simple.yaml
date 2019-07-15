@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Metadata: 
+  # Control the UI display when running this template from the AWS Management Console:
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - Label: 
+          default: "EC2 Configuration"
+        Parameters: 
+          - VM-SecurityGroup
+            #Parameters:
+#  VM-SecurityGroup:
+#    Type: String
+#Parameters: 
+#SubnetId: !stack_output vpc-multiple-az.yml::PrivateSubnetA
+#  SubnetId: !stack_output "vpc/vpc-multiple-az::PrivateSubnetA"
+  #SubnetId: !stack_output "vpc-multiple-az.yaml::PrivateSubnetA"
+sceptre_user_data:
+  SubnetId: !stack_output vpc/vpc-multiple-az.yaml::PrivateSubnetA
+
+  
+Resources:
+  DefEc2SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      VpcId: "vpc-0f6bc83de066c878c"
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: '0.0.0.0/0'
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: 't2.small'
+#        Ref: InstanceType
+      #SecurityGroups: 
+      #- !Ref DefEc2SecGroup
+      #  - !Ref DefEc2SecGroup
+      #           - Ref: DefEc2SecGroup
+      SecurityGroupIds: 
+      - !GetAtt DefEc2SecGroup.GroupId
+      KeyName: '2019'
+      ImageId: 'ami-ea26ce85'
+      #      SubnetId: 'subnet-0bb97fdbf1e019f7c'
+      #SubnetId: !stack_output vpc-multiple-az::PrivateSubnetA
+      #SubnetId: !stack_output "vpc-multiple-az.yaml::PrivateSubnetA"
+      #      SubnetId: !stack_output "vpc/vpc-multiple-az.yaml::PrivateSubnetA"
+      #SubnetId: "!stack_output vpc/vpc-multiple-az.yaml::PrivateSubnetA"
+      #SubnetId: !stack_output vpc/vpc-multiple-az.yaml::PrivateSubnetA
+      #SubnetId: !Ref PublicSubnetA
